@@ -1,3 +1,4 @@
 node_modules/
 dist/
-build/
+data/*.sqlite
+data/logs/*.log

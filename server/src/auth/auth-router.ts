@@ -12,24 +12,31 @@ authRouter.post("/register", async (req, res) => {
 		return;
 	}
 
-	if(await UserRepository.getByUsername(data.username)){
+	if (await UserRepository.getByUsername(data.username)) {
 		res.status(400).send("User already exists");
 		return;
 	}
-
+	
 	if (!(await UserRepository.insert(data.username, data.password))) {
-		res.status(500).send("Failed to insert user");
+		res.status(500).send();
 		return;
 	}
 
-	let token: string = TokenRepository.generateToken();
-	if (!TokenRepository.insert(token, data.username)) {
-		res.status(500).send("Failed to insert token");
+	let sessionToken: string = TokenRepository.generateSessionToken();
+	if (!(await TokenRepository.insert(sessionToken, data.username))) {
+		res.status(500).send();
 		return;
 	}
 
 	res.status(200).json({
-		token,
+		name: "authorization",
+		value: sessionToken,
+		options: {
+			httpOnly: true,
+			sameSite: "strict",
+			secure: true,
+			path: "/"
+		}
 	});
 });
 
@@ -49,34 +56,47 @@ authRouter.post("/login", async (req, res) => {
 		return;
 	}
 
-	await TokenRepository.delete((await TokenRepository.getByUser(data.username)).token);
+	await TokenRepository.delete((await TokenRepository.getByUser(data.username)).session_token);
 
-	let token = TokenRepository.generateToken();
-	if (!TokenRepository.insert(token, data.username)) {
+	let sessionToken = TokenRepository.generateSessionToken();
+	if (!TokenRepository.insert(sessionToken, data.username)) {
 		res.status(500).send("Failed to insert token");
 		return;
 	}
 
 	res.status(200).json({
-		token,
+		name: "authorization",
+		value: sessionToken,
+		options: {
+			httpOnly: true,
+			sameSite: "strict",
+			secure: true,
+			path: "/"
+		}
 	});
 });
 
-const parseBody = (body: any): {
-	data?: {
-		username: string;
-		password: string;
-	}, error: boolean } => {
+authRouter.get("validate-session", async (req, res) => {
+	if (!req.headers.authorization) {
+		res.status(401).send();
+		return;
+	}
+
+	let token = await TokenRepository.get(req.headers.authorization);
+	if (!token || token.expires_at < Date.now()) {
+		res.status(401).send();
+		return;
+	}
+
+	res.status(200).send();
+});
+
+const parseBody = (body: any): { data?: { username: string; password: string }; error: boolean } => {
 	if (!body) {
 		return { error: true };
 	}
 	const { username, password } = body;
-	if (
-		!username ||
-		!password ||
-		typeof username !== "string" ||
-		typeof password !== "string"
-	) {
+	if (!username || !password || typeof username !== "string" || typeof password !== "string") {
 		return { error: true };
 	}
 	return { data: { username, password }, error: false };

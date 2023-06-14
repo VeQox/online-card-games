@@ -1,20 +1,19 @@
 import { open, Database } from "sqlite";
-import { Database as Driver } from "sqlite3";
+import { Database as Driver, OPEN_CREATE, OPEN_READWRITE } from "sqlite3";
 
 const file = "data/db.sqlite";
 
 export async function createConnection() : Promise<Database> {
 	const db = await open({
+		mode: OPEN_READWRITE | OPEN_CREATE,
 		filename: file,
 		driver: Driver
 	});
 
-	await ensureTablesExist(db);
-
 	return db;
 }
 
-const ensureTablesExist = async(connection : Database) => {
+export const ensureTablesExist = async(connection : Database) => {
 	if(!await tableExists(connection, "user")) {
 		await connection.exec(`
 		CREATE TABLE IF NOT EXISTS user (
@@ -27,11 +26,11 @@ const ensureTablesExist = async(connection : Database) => {
 		await connection.exec(`
 		CREATE TABLE IF NOT EXISTS token (
 			user TEXT NOT NULL,
-			token TEXT NOT NULL,
+			session_token TEXT NOT NULL,
 			created_at INTEGER NOT NULL,
 			expires_at INTEGER NOT NULL,
 			FOREIGN KEY (user) REFERENCES user(username),
-			PRIMARY KEY (token)
+			PRIMARY KEY (session_token)
 		);`);
 	}
 }

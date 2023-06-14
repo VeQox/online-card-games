@@ -1,7 +1,7 @@
 import { Database, Statement } from "sqlite";
 import { createConnection } from "../db/db";
 import { User } from "./user";
-import { Logger } from "../logger/logger";
+
 
 export class UserRepository {
 	public static async insert(username : string, password : string) : Promise<boolean> {
@@ -20,14 +20,14 @@ export class UserRepository {
             await stmt.finalize();
 
             if(result.changes < 1){
-                Logger.error(`Failed to insert user ${username}`);
+
                 connection.close();
                 return false;
             }
 
-            Logger.info(`Inserted user ${username}`);
+
 		} finally {
-			connection.close();
+			connection?.close();
 		}
 
         return true;
@@ -38,11 +38,11 @@ export class UserRepository {
         let users : User[] = [];
         try {
             connection = await createConnection();
-            const stmt = await connection.prepare(`SELECT id, username, password, created_at FROM user`);
-            users = await stmt.get<User[]>();
+            const stmt = await connection.prepare(`SELECT username, password, created_at FROM user`);
+            users = await stmt.all<User[]>();
             await stmt.finalize();
         } finally {
-            connection.close();
+            connection?.close();
         }
         return users;
     }
@@ -52,13 +52,13 @@ export class UserRepository {
         let user : User | undefined;
         try {
             connection = await createConnection();
-            const stmt = await connection.prepare(`SELECT username, password, created_at FROM user WHERE username = '?'`, {
+            const stmt = await connection.prepare(`SELECT username, password, created_at FROM user WHERE username = ?`, {
                 1: username
             });
             user = await stmt.get<User | undefined>();
             await stmt.finalize();
         } finally {
-            connection.close();
+            connection?.close();
         }
         return user;
     }

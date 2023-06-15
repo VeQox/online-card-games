@@ -18,13 +18,13 @@ authRouter.post("/register", async (req, res) => {
 	}
 	
 	if (!(await UserRepository.insert(data.username, data.password))) {
-		res.status(500).send();
+		res.status(500).send("Internal server error");
 		return;
 	}
 
 	let sessionToken: string = TokenRepository.generateSessionToken();
 	if (!(await TokenRepository.insert(sessionToken, data.username))) {
-		res.status(500).send();
+		res.status(500).send("Internal server error");
 		return;
 	}
 
@@ -60,7 +60,7 @@ authRouter.post("/login", async (req, res) => {
 
 	let sessionToken = TokenRepository.generateSessionToken();
 	if (!TokenRepository.insert(sessionToken, data.username)) {
-		res.status(500).send("Failed to insert token");
+		res.status(500).send("Internal server error");
 		return;
 	}
 

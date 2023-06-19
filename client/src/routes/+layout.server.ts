@@ -1,25 +1,30 @@
 import { redirect } from '@sveltejs/kit';
+import type { LayoutServerLoad } from './$types';
 
-export const load = async ({ request, cookies, fetch }) => {
-    const sessionToken : string | undefined = cookies.get("authorization");
+export const load : LayoutServerLoad = async ({ request, cookies, fetch }) => {
+    const session = cookies.get("session");
 
-    if(!sessionToken){
+    if(request.url === "/") {
+        return;
+    }
+
+    if(!session){
         throw redirect(301, "/auth/register");
     }
 
     const response = await fetch("http://localhost:3000/auth/validate-session", {
         method: "GET",
         headers: {
-            "Authorization": sessionToken
+            "Authorization": session
         }
     });
 
     if(response.ok){
         return {
-            sessionToken: sessionToken
+            session: session
         }
     }
 
-    cookies.delete("authorization");
+    cookies.delete("session");
     throw redirect(301, "/auth/login");
 }

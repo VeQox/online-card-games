@@ -1,7 +1,7 @@
+import { User } from "@db/model/user";
+import { TokenService } from "@db/token-service";
+import { UserService } from "@db/user-service";
 import { Router } from "express";
-import { UserRepository } from "../user/user-repository";
-import { User } from "../user/user";
-import { TokenRepository } from "../token/token-repository";
 
 export const authRouter = Router();
 
@@ -12,25 +12,25 @@ authRouter.post("/register", async (req, res) => {
 		return;
 	}
 
-	if (await UserRepository.getByUsername(data.username)) {
+	if (await UserService.getByUsername(data.username)) {
 		res.status(400).send("User already exists");
 		return;
 	}
 	
-	if (!(await UserRepository.insert(data.username, data.password))) {
+	if (!(await UserService.insert(data.username, data.password))) {
 		res.status(500).send("Internal server error");
 		return;
 	}
 
-	let sessionToken: string = TokenRepository.generateSessionToken();
-	if (!(await TokenRepository.insert(sessionToken, data.username))) {
+	let session: string = TokenService.generateSessionToken();
+	if (!(await TokenService.insert(session, data.username))) {
 		res.status(500).send("Internal server error");
 		return;
 	}
 
 	res.status(200).json({
-		name: "authorization",
-		value: sessionToken,
+		name: "session",
+		value: session,
 		options: {
 			httpOnly: true,
 			sameSite: "strict",
@@ -47,7 +47,7 @@ authRouter.post("/login", async (req, res) => {
 		return;
 	}
 
-	let user: User | undefined = await UserRepository.getByUsername(
+	let user: User | undefined = await UserService.getByUsername(
 		data.username,
 	);
 
@@ -56,17 +56,17 @@ authRouter.post("/login", async (req, res) => {
 		return;
 	}
 
-	await TokenRepository.delete((await TokenRepository.getByUser(data.username)).session_token);
+	await TokenService.delete((await TokenService.getByUser(data.username)).session_token);
 
-	let sessionToken = TokenRepository.generateSessionToken();
-	if (!TokenRepository.insert(sessionToken, data.username)) {
+	let session = TokenService.generateSessionToken();
+	if (!TokenService.insert(session, data.username)) {
 		res.status(500).send("Internal server error");
 		return;
 	}
 
 	res.status(200).json({
-		name: "authorization",
-		value: sessionToken,
+		name: "session",
+		value: session,
 		options: {
 			httpOnly: true,
 			sameSite: "strict",
@@ -82,7 +82,7 @@ authRouter.get("validate-session", async (req, res) => {
 		return;
 	}
 
-	let token = await TokenRepository.get(req.headers.authorization);
+	let token = await TokenService.get(req.headers.authorization);
 	if (!token || token.expires_at < Date.now()) {
 		res.status(401).send();
 		return;

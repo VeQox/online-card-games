@@ -1,7 +1,8 @@
 import { digestMessage } from "$lib/utils";
 import { redirect } from "@sveltejs/kit";
+import type { Actions } from "@sveltejs/kit";
 
-export const actions = {
+export const actions : Actions = {
 	default: async ({ cookies, request, fetch }) => {
 		const formData = await request.formData();
 

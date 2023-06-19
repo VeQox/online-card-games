@@ -1,9 +1,9 @@
-import { Database, Statement } from "sqlite";
-import { createConnection } from "../db/db";
-import { User } from "./user";
+import { createConnection } from "@db/db";
+import { User } from "@db/model/user";
+import { Database } from "sqlite";
 
 
-export class UserRepository {
+export class UserService {
 	public static async insert(username : string, password : string) : Promise<boolean> {
 		let connection: Database | undefined;
 		try {

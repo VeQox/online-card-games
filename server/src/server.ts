@@ -1,10 +1,10 @@
-import express, { Express } from "express";
-import { userRouter } from "./user/user-router";
-import { authRouter } from "./auth/auth-router";
-import { createConnection, ensureTablesExist } from "./db/db";
+import { createConnection, ensureTablesExist } from "@db/db";
+import { TokenService } from "@db/token-service";
+import { authRouter } from "@router/auth-router";
+import { userRouter } from "@router/user-router";
 import cors from "cors";
+import express, { Express } from "express";
 import { Server, createServer } from "http";
-import { TokenRepository } from "./token/token-repository";
 
 const port: number = 3000;
 const app: Express = express();
@@ -16,11 +16,11 @@ app.use(async (req, res, next) => {
 
     if(!req.path.startsWith("/auth")) {
         if(req.headers.authorization) {
-            const token = await TokenRepository.get(req.headers.authorization);
+            const token = await TokenService.get(req.headers.authorization);
             if(!token || token.expires_at < Date.now()) {
                 res.status(401).send();
             } 
-            TokenRepository.update(token.session_token);
+            TokenService.update(token.session_token);
         }
     }
 

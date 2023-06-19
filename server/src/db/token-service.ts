@@ -1,9 +1,9 @@
-import { Database } from "sqlite";
-import { createConnection } from "../db/db";
-import { Token } from "./token";
+import { createConnection } from "@db/db";
+import { Token } from "@db/model/token";
 import { randomBytes } from "crypto";
+import { Database } from "sqlite";
 
-export class TokenRepository {
+export class TokenService {
 	static TOKEN_EXPIRATION_TIME: number = 1000 * 60 * 60 * 2; // 2 hour
 
 	public static generateSessionToken(): string {
@@ -11,7 +11,7 @@ export class TokenRepository {
 	}
 
 	public static async insert(
-		sessionToken: string,
+		session: string,
 		username: string,
 	): Promise<boolean> {
 		let connection: Database | undefined;
@@ -23,7 +23,7 @@ export class TokenRepository {
 				`INSERT INTO token (session_token, user, created_at, expires_at) VALUES (?, ?, ?, ?)`,
 			);
 			stmt.bind({
-				1: sessionToken,
+				1: session,
 				2: username,
 				3: date,
 				4: date + this.TOKEN_EXPIRATION_TIME,
@@ -42,7 +42,7 @@ export class TokenRepository {
 		return true;
 	}
 
-	public static async update(sessionToken: string): Promise<boolean> {
+	public static async update(session: string): Promise<boolean> {
 		let connection: Database | undefined;
 		try {
 			connection = await createConnection();
@@ -53,7 +53,7 @@ export class TokenRepository {
 			);
 			stmt.bind({
 				1: date + this.TOKEN_EXPIRATION_TIME,
-				2: sessionToken,
+				2: session,
 			});
 
 			let result = await stmt.run();
@@ -69,8 +69,8 @@ export class TokenRepository {
 		return true;
 	}
 
-	public static async delete(sessionToken: string | undefined): Promise<boolean> {
-		if (!sessionToken) return false;
+	public static async delete(session: string | undefined): Promise<boolean> {
+		if (!session) return false;
 
 		let connection: Database | undefined;
 		try {
@@ -80,7 +80,7 @@ export class TokenRepository {
 				`DELETE FROM token WHERE session_token = ?`,
 			);
 			stmt.bind({
-				1: sessionToken,
+				1: session,
 			});
 
 			let result = await stmt.run();
@@ -133,7 +133,7 @@ export class TokenRepository {
 		return token;
 	}
 
-	public static async get(sessionToken: string): Promise<Token | undefined> {
+	public static async get(session: string): Promise<Token | undefined> {
 		let connection: Database | undefined;
 		let token: Token | undefined;
 		try {
@@ -142,7 +142,7 @@ export class TokenRepository {
 				`SELECT session_token, user, created_at, expires_at FROM token WHERE session_token = ?`,
 			);
 			stmt.bind({
-				1: sessionToken,
+				1: session,
 			});
 
 			token = await stmt.get<Token | undefined>();

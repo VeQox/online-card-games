@@ -2,6 +2,11 @@
     "compilerOptions": {
         "rootDir": "./src",
         "outDir": "./dist",
-        "esModuleInterop": true
+        "esModuleInterop": true,
+        "baseUrl": "./src/",
+        "paths": {
+            "@db/*": ["db/*"],
+            "@router/*": ["router/*"]
+        }
     }
 }

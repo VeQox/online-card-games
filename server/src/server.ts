@@ -1,5 +1,3 @@
-import cors from "cors";
-import express, { Express } from "express";
 import { Server, createServer } from "http";
 
 const port: number = 3000;

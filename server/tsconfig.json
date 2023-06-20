@@ -5,8 +5,23 @@
         "esModuleInterop": true,
         "baseUrl": "./src/",
         "paths": {
-            "@db/*": ["db/*"],
-            "@router/*": ["router/*"]
+            "@db/*": [
+                "db/*"
+            ],
+            "@db": [
+                "db/db"
+            ],
+            "@router/*": [
+                "router/*"
+            ],
+            "@logger": [
+                "logger/logger"
+            ]
         }
+    },
+    "ts-node": {
+        "require": [
+            "tsconfig-paths/register"
+        ]
     }
 }

@@ -1,8 +1,12 @@
+import { createConnection } from "$lib/server/db";
+import { TokenService } from "$lib/server/token-service";
+import { UserService } from "$lib/server/user-service";
 import { digestMessage } from "$lib/utils";
-import { redirect } from "@sveltejs/kit";
+import { redirect, fail } from "@sveltejs/kit";
 import type { Actions } from "@sveltejs/kit";
+import type { Database } from "sqlite";
 
-export const actions : Actions = {
+export const actions: Actions = {
 	default: async ({ cookies, request, fetch }) => {
 		const formData = await request.formData();
 
@@ -10,30 +14,27 @@ export const actions : Actions = {
 		const password = await digestMessage(formData.get("password") as string);
 		const confirmPassword = await digestMessage(formData.get("confirmPassword") as string);
 
-		if (password != confirmPassword) {
-			return {
-				error: true,
-				data: "passwords dont match"
-			};
+		if (password != confirmPassword) return fail(400, { message: "The passwords don't match. Please enter the same password in both fields." });
+
+		let connection: undefined | Database;
+		try {
+			connection = await createConnection();
+
+			if (await UserService.getByUsername(username)) return fail(400, { message: `User with ${username} already exists` });
+			if (!(await UserService.insert(username, password))) return fail(500, { message: "Internal server error" });
+			let session = TokenService.generateSessionToken();
+			if (!(await TokenService.insert(session, username))) return fail(500, { message: "Internal server error" });
+
+			cookies.set("session", session, {	
+				httpOnly: true,
+				sameSite: "strict",
+				//secure: true,
+				path: "/"
+			});
+		} finally {
+			connection?.close();
 		}
 
-		const response = await fetch("http://localhost:3000/auth/register", {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json"
-			},
-			body: JSON.stringify({ username, password })
-		});
-
-		if (response.ok) {
-			const { name, value, options } = await response.json();
-			cookies.set(name, value, options);
-			return { error: false };
-		}
-
-		return {
-			error: true,
-			data: await response.text()
-		};
+		throw redirect(303, "/");
 	}
 };

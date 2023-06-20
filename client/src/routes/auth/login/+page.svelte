@@ -10,9 +10,4 @@
 	<button type="submit">Login</button>
 </form>
 
-{#if form}
-	{#if form.error}
-		<p>{form.error}</p>
-		<p>{form.data}</p>
-	{/if}
-{/if}
+<p>{form?.message}</p>

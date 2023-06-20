@@ -1,14 +1,17 @@
 import { open, Database } from "sqlite";
 import { Database as Driver, OPEN_CREATE, OPEN_READWRITE } from "sqlite3";
 
-const file = "data/db.sqlite";
+const file = "../data/db.sqlite";
 
 export async function createConnection() : Promise<Database> {
 	const db = await open({
 		mode: OPEN_READWRITE | OPEN_CREATE,
 		filename: file,
-		driver: Driver
+		driver: Driver,
+		
 	});
+
+	await ensureTablesExist(db);
 
 	return db;
 }
@@ -36,6 +39,5 @@ export const ensureTablesExist = async(connection : Database) => {
 }
 
 async function tableExists(db : Database, table: string) : Promise<boolean> {
-	
 	return !!(await db.get("SELECT name FROM sqlite_master WHERE type='table' AND name=?", table));
 }

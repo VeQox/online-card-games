@@ -12,8 +12,8 @@
 </form>
 
 {#if form}
-	{#if form.error}
-		<p>{form.error}</p>
-		<p>{form.data}</p>
+	{#if form.message}
+		<p>{form.message}</p>
+		<p>{form}</p>
 	{/if}
 {/if}

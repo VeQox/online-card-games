@@ -1,30 +1,20 @@
-import { redirect } from '@sveltejs/kit';
-import type { LayoutServerLoad } from './$types';
+import { redirect } from "@sveltejs/kit";
+import type { LayoutServerLoad } from "./$types";
+import { TokenService } from "$lib/server/token-service";
+export const load: LayoutServerLoad = async ({ request, cookies, fetch }) => {
 
-export const load : LayoutServerLoad = async ({ request, cookies, fetch }) => {
-    const session = cookies.get("session");
+	const session = cookies.get("session");
 
-    if(request.url === "/") {
+    console.log(`Session: ${session}`)
+
+	if (!session) {
+        console.log("no session found")
         return;
+	}
+
+    console.log("session found")
+    if (!(await TokenService.validate(session))) {
+        cookies.delete("session");
+        throw redirect(303, "/auth/login");
     }
-
-    if(!session){
-        throw redirect(301, "/auth/register");
-    }
-
-    const response = await fetch("http://localhost:3000/auth/validate-session", {
-        method: "GET",
-        headers: {
-            "Authorization": session
-        }
-    });
-
-    if(response.ok){
-        return {
-            session: session
-        }
-    }
-
-    cookies.delete("session");
-    throw redirect(301, "/auth/login");
-}
+};

@@ -1,14 +1,13 @@
 import { redirect } from "@sveltejs/kit";
 import type { LayoutServerLoad } from "./$types";
 import { TokenService } from "$lib/server/token-service";
+import { Logger } from "$lib/server/logger";
 export const load: LayoutServerLoad = async ({ request, cookies, fetch }) => {
+    Logger.info(`${request.method} on ${request.url}`);
 
 	const session = cookies.get("session");
 
-    console.log(`Session: ${session}`)
-
 	if (!session) {
-        console.log("no session found")
         return;
 	}
 

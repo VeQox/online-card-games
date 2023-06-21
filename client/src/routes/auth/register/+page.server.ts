@@ -26,8 +26,8 @@ export const actions: Actions = {
 			if (!(await TokenService.insert(session, username))) return fail(500, { message: "Internal server error" });
 
 			cookies.set("session", session, {	
-				httpOnly: true,
-				sameSite: "strict",
+				//httpOnly: true,
+				//sameSite: "strict",
 				//secure: true,
 				path: "/"
 			});

@@ -1,4 +1,5 @@
-import { Server, createServer } from "http";
+import { Logger } from "@logger";
+import { Server, createServer } from "https";
 
 const port: number = 3000;
 const server: Server = createServer();

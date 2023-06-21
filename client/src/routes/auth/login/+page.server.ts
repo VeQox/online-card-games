@@ -7,7 +7,7 @@ import type { Actions } from "@sveltejs/kit";
 import type { Database } from "sqlite";
 
 export const actions: Actions = {
-	default: async ({ cookies, request, fetch }) => {
+	default: async ({ cookies, request }) => {
 		const formData = await request.formData();
 
 		const username = formData.get("username") as string;
@@ -26,7 +26,7 @@ export const actions: Actions = {
 			if (!(await TokenService.insert(session, username))) return fail(500, { message: "Internal server error" });
 
 			cookies.set("session", session, {
-				httpOnly: true,
+				httpOnly: false,
 				sameSite: "strict",
 				//secure: true,
 				path: "/"

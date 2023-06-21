@@ -1,38 +1,104 @@
-# create-svelte
+# Card Game Client
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
-
-## Creating a project
-
-If you're seeing this, you've probably already done this step. Congrats!
+## Prerequisites
 
 ```bash
-# create a new project in the current directory
-npm create svelte@latest
-
-# create a new project in my-app
-npm create svelte@latest my-app
+# install dependecies
+npm i
 ```
 
 ## Developing
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
 ```bash
 npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
 ```
 
 ## Building
-
-To create a production version of your app:
 
 ```bash
 npm run build
 ```
 
-You can preview the production build with `npm run preview`.
+## Preview
 
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+```bash
+npm run preview
+```
+
+## Deployment
+
+For this to work either PORT `80`or `443` need to be forwarded
+
+```bash
+# for http
+sudo firewall-cmd --permanent --zone=public --add-port=80/tcp
+# for https
+sudo firewall-cmd --permanent --zone=public --add-port=443/tcp
+```
+
+Is this safe? Is this recommended? Idk i aint a security specialist
+
+### NGNIX
+
+```bash
+# install nginx
+sudo apt install nginx
+
+# verify version
+sudo nginx -v
+```
+
+```nginx
+server {
+    # HTTP Port: 80
+    # HTTPS Port: 443
+    listen 80;
+    # External IP Adress
+    server_name xxx.xxx.xxx.xxx;
+
+    location / {
+        # http://127.0.0.1:8080 / HOST
+        proxy_pass <internal-node-server-ip>;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}
+```
+
+```bash
+# reload nginx
+sudo systemctl reload nginx  
+```
+
+### Node Server
+
+```bash
+# build using @sveltejs/adapter-node
+npm run build
+
+# install dotenv
+npm install dotenv
+```
+
+```bash
+# .env
+
+HOST=<internal-ip>
+# 127.0.0.1
+PORT=<internal-port>
+# 8080
+
+ORIGIN=<external-ip / domain> 
+# http://127.0.0.1:8080
+
+# https://kit.svelte.dev/docs/adapter-node
+# PROTOCOL_HEADER=x-forwarded-proto 
+# HOST_HEADER=x-forwarded-host
+# ADDRESS_HEADER=True-Client-IP
+```
+
+```bash
+# run the application
+node -r dotenv/config build
+```

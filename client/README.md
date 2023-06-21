@@ -30,6 +30,8 @@ npm run preview
 For this to work either PORT `80`or `443` need to be forwarded
 
 ```bash
+sudo apt install firewalld
+
 # for http
 sudo firewall-cmd --permanent --zone=public --add-port=80/tcp
 # for https

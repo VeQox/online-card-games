@@ -1,11 +1,11 @@
 import { open, Database } from "sqlite";
-import { Database as Driver, OPEN_CREATE, OPEN_READWRITE } from "sqlite3";
+import * as Driver from "sqlite3";
 
 const file = "../data/db.sqlite";
 
 export async function createConnection() : Promise<Database> {
 	const db = await open({
-		mode: OPEN_READWRITE | OPEN_CREATE,
+		mode: Driver.OPEN_READWRITE | Driver.OPEN_CREATE,
 		filename: file,
 		driver: Driver,
 		

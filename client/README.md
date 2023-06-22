@@ -64,11 +64,16 @@ server {
     server_name xxx.xxx.xxx.xxx;
 
     location / {
-        # http://127.0.0.1:8080 / HOST
-        proxy_pass <internal-node-server-ip>;
-        proxy_set_header Host $host;
+        proxy_set_header Host $http_host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        proxy_connect_timeout 300;
+        proxy_set_header Connection "";
+
+        # http://127.0.0.1:8080
+        proxy_pass <internal-node-server-ip>;
     }
 }
 ```

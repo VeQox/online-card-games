@@ -35,9 +35,9 @@ export const actions: Actions = {
 			cookies.set("session", session, {	
 				httpOnly: true,
 				//sameSite: "strict",
-				//secure: true,
+				secure: false,
 				path: "/"
-			});
+			});	
 			Logger.info(`Register: User ${username} registered successfully`);
 		} finally {
 			connection?.close();

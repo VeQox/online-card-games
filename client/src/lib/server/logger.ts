@@ -6,20 +6,20 @@ export class Logger {
 
 	private static write(message: string): void {
 		console.log(message);
-		appendFile(this.logFile, message, (err) => {
+		appendFile(this.logFile, `${message}\n`, (err) => {
 			if(err) console.log("Log failed");
 		});
 	}
 
 	public static info(message: string): void {
-		this.write(`[INFO]  ${message}\n`);
+		this.write(`[INFO]  ${message}`);
 	}
 
 	public static error(message: string): void {
-		this.write(`[ERROR] ${message}\n`);
+		this.write(`[ERROR] ${message}`);
 	}
 
 	public static debug(message: string): void {
-		this.write(`[DEBUG] ${message}\n`);
+		this.write(`[DEBUG] ${message}`);
 	}
 }

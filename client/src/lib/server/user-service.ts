@@ -1,4 +1,5 @@
 import { createConnection } from "./db";
+import { Logger } from "./logger";
 import type { User } from "./model/user";
 import type { Database } from "sqlite";
 
@@ -19,13 +20,14 @@ export class UserService {
 			await stmt.finalize();
 
 			if (!result.changes || result.changes < 1) {
-				connection.close();
+				Logger.error(`UserService: Failed to insert user ${username}`);
 				return false;
 			}
 		} finally {
 			connection?.close();
 		}
 
+		Logger.info(`UserService: Inserted user ${username}`);
 		return true;
 	}
 
@@ -40,6 +42,8 @@ export class UserService {
 		} finally {
 			connection?.close();
 		}
+
+		Logger.info(`UserService: Retrieved ${users?.length} users`);
 		return users;
 	}
 
@@ -56,6 +60,8 @@ export class UserService {
 		} finally {
 			connection?.close();
 		}
+
+		Logger.info(`UserService: Retrieved user ${user?.username}`);
 		return user;
 	}
 }

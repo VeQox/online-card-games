@@ -1,4 +1,5 @@
 import { createConnection } from "$lib/server/db";
+import { Logger } from "$lib/server/logger";
 import { TokenService } from "$lib/server/token-service";
 import { UserService } from "$lib/server/user-service";
 import { digestMessage } from "$lib/utils";
@@ -18,8 +19,14 @@ export const actions: Actions = {
 			connection = await createConnection();
 
 			let user = await UserService.getByUsername(username);
-			if (!user) return fail(400, { message: `No User found with ${username}` });
-			if (password !== user.password) return fail(400, { message: "Incorrect Password" });
+			if (!user) {
+				Logger.info(`Login: No User found with ${username}`);
+				return fail(400, { message: `No User found with ${username}` });
+			}
+			if (password !== user.password) {
+				Logger.info(`Login: Incorrect Password`);
+				return fail(400, { message: "Incorrect Password" });
+			}
 			let token = await TokenService.getByUser(username);
 			if (token) await TokenService.delete(token);
 			let session = TokenService.generateSessionToken();
@@ -31,10 +38,12 @@ export const actions: Actions = {
 				//secure: true,
 				path: "/"
 			});
+			Logger.info(`Login: User ${username} logged in successfully`);
 		} finally {
 			connection?.close();
 		}
 
+		Logger.info(`Login: Redirecting to /`);
 		throw redirect(303, "/");
 	}
 };

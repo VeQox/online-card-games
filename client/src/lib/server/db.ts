@@ -1,5 +1,7 @@
-import { open, Database } from "sqlite";
+import { open } from "sqlite";
+import type { Database } from "sqlite";
 import sqlite3 from "sqlite3";
+import { Logger } from "./logger";
 
 const file = "../data/db.sqlite";
 
@@ -8,7 +10,6 @@ export async function createConnection() : Promise<Database> {
 		mode: sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE,
 		filename: file,
 		driver: sqlite3.Database,
-		
 	});
 
 	await ensureTablesExist(db);
@@ -24,6 +25,7 @@ export const ensureTablesExist = async(connection : Database) => {
 			password TEXT NOT NULL,
 			created_at INTEGER NOT NULL
 		);`);
+		if(await tableExists(connection, "user")) Logger.info("User table created");
 	}
 	if(!await tableExists(connection, "token")) {
 		await connection.exec(`
@@ -35,6 +37,7 @@ export const ensureTablesExist = async(connection : Database) => {
 			FOREIGN KEY (user) REFERENCES user(username),
 			PRIMARY KEY (session_token)
 		);`);
+		if(await tableExists(connection, "token")) Logger.info("User table created");
 	}
 }
 

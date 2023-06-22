@@ -2,12 +2,15 @@ import { randomBytes } from "crypto";
 import type { Database } from "sqlite";
 import { createConnection } from "./db";
 import type { Token } from "./model/token";
+import { Logger } from "./logger";
 
 export class TokenService {
 	static TOKEN_EXPIRATION_TIME: number = 1000 * 60 * 15; // 15 minutes
 
 	public static generateSessionToken(): string {
-		return randomBytes(64).toString("base64");
+		let token = randomBytes(64).toString("base64");
+		Logger.info(`TokenService: Generated new session token ${token}`);
+		return token;
 	}
 
 	public static async insert(session: string, username: string): Promise<boolean> {
@@ -33,6 +36,8 @@ export class TokenService {
 		} finally {
 			connection?.close();
 		}
+
+		Logger.info(`TokenService: Inserted token for user ${username}`);
 		return true;
 	}
 
@@ -63,6 +68,8 @@ export class TokenService {
 		} finally {
 			connection?.close();
 		}
+
+		Logger.info(`TokenService: Updated token ${session}`);
 		return true;
 	}
 
@@ -89,6 +96,8 @@ export class TokenService {
 		} finally {
 			connection?.close();
 		}
+
+		Logger.info(`TokenService: Removed token ${session}`);
 		return true;
 	}
 
@@ -103,6 +112,8 @@ export class TokenService {
 		} finally {
 			connection?.close();
 		}
+
+		Logger.info(`TokenService: Retrieved ${tokens?.length} tokens`);
 		return tokens ?? [];
 	}
 
@@ -120,6 +131,8 @@ export class TokenService {
 		} finally {
 			connection?.close();
 		}
+
+		Logger.info(`TokenService: Retrieved ${token?.session_token} token`);
 		return token;
 	}
 
@@ -138,6 +151,8 @@ export class TokenService {
 		} finally {
 			connection?.close();
 		}
+
+		Logger.info(`TokenService: Retrieved ${token?.session_token} token`);
 		return token;
 	}
 
@@ -147,8 +162,11 @@ export class TokenService {
 
 		if(token.expires_at > Date.now()) {
 			this.update(token);
+			Logger.info(`TokenService: Token ${token.session_token} validated`);
 			return true;
 		}
+
+		Logger.info(`TokenService: Token ${token.session_token} expired`);
 		return false;
 	}	
 }

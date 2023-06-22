@@ -36,6 +36,9 @@ sudo apt install firewalld
 sudo firewall-cmd --permanent --zone=public --add-port=80/tcp
 # for https
 sudo firewall-cmd --permanent --zone=public --add-port=443/tcp
+
+# reload 
+sudo firewall-cmd --reload
 ```
 
 Is this safe? Is this recommended? Idk i aint a security specialist
@@ -51,6 +54,8 @@ sudo nginx -v
 ```
 
 ```nginx
+# /etc/nginx/conf.d/reverse-proxy.conf
+
 server {
     # HTTP Port: 80
     # HTTPS Port: 443
@@ -69,6 +74,8 @@ server {
 ```
 
 ```bash
+# test configuration
+sudo nginx -t
 # reload nginx
 sudo systemctl reload nginx  
 ```

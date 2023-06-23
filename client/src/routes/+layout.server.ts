@@ -11,7 +11,6 @@ export const load: LayoutServerLoad = async ({ request, cookies, fetch }) => {
 		return;
 	}
 
-	console.log("session found");
 	if (!(await TokenService.validate(session))) {
 		cookies.set("session", "", { httpOnly: true, secure: false, path: "/", expires: new Date(0) });
 		throw redirect(303, "/auth/login");

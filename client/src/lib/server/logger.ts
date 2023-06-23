@@ -2,12 +2,12 @@ import { appendFile } from "fs";
 import { join } from "path";
 
 export class Logger {
-	private static logFile = join(process.cwd(), "../data/logs/", `log-${new Date().toISOString()}.log`)
+	private static logFile = join(process.cwd(), "../data/logs/", `log-${new Date().toISOString()}.log`);
 
 	private static write(message: string): void {
 		console.log(message);
 		appendFile(this.logFile, `${message}\n`, (err) => {
-			if(err) console.log("Log failed");
+			if (err) console.log("Log failed");
 		});
 	}
 

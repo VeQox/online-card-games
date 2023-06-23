@@ -51,7 +51,7 @@ export class TokenService {
 		let connection: Database | undefined;
 		try {
 			connection = await createConnection();
-			
+
 			const stmt = await connection.prepare(`UPDATE token SET expires_at = ? WHERE session_token = ?`);
 			await stmt.bind({
 				1: Date.now() + this.TOKEN_EXPIRATION_TIME,
@@ -156,11 +156,11 @@ export class TokenService {
 		return token;
 	}
 
-	public static async validate(session: string) : Promise<boolean> {
+	public static async validate(session: string): Promise<boolean> {
 		let token = await this.get(session);
-		if(!token) return false;
+		if (!token) return false;
 
-		if(token.expires_at > Date.now()) {
+		if (token.expires_at > Date.now()) {
 			this.update(token);
 			Logger.info(`TokenService: Token ${token.session_token} validated`);
 			return true;
@@ -168,5 +168,5 @@ export class TokenService {
 
 		Logger.info(`TokenService: Token ${token.session_token} expired`);
 		return false;
-	}	
+	}
 }

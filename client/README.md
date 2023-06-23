@@ -37,7 +37,7 @@ sudo firewall-cmd --permanent --zone=public --add-port=80/tcp
 # for https
 sudo firewall-cmd --permanent --zone=public --add-port=443/tcp
 
-# reload 
+# reload
 sudo firewall-cmd --reload
 ```
 
@@ -82,7 +82,7 @@ server {
 # test configuration
 sudo nginx -t
 # reload nginx
-sudo systemctl reload nginx  
+sudo systemctl reload nginx
 ```
 
 ### Node Server
@@ -103,11 +103,11 @@ HOST=<internal-ip>
 PORT=<internal-port>
 # 8080
 
-ORIGIN=<external-ip / domain> 
+ORIGIN=<external-ip / domain>
 # http://127.0.0.1:8080
 
 # https://kit.svelte.dev/docs/adapter-node
-# PROTOCOL_HEADER=x-forwarded-proto 
+# PROTOCOL_HEADER=x-forwarded-proto
 # HOST_HEADER=x-forwarded-host
 # ADDRESS_HEADER=True-Client-IP
 ```

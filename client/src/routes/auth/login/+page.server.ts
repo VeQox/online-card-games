@@ -6,6 +6,7 @@ import { digestMessage } from "$lib/utils";
 import { redirect, fail } from "@sveltejs/kit";
 import type { Actions } from "@sveltejs/kit";
 import type { Database } from "sqlite";
+import { DEV } from "$env/static/private";
 
 export const actions: Actions = {
 	default: async ({ cookies, request }) => {
@@ -35,7 +36,7 @@ export const actions: Actions = {
 			cookies.set("session", session, {
 				httpOnly: false,
 				sameSite: "strict",
-				//secure: true,
+				secure: DEV === "false",
 				path: "/"
 			});
 			Logger.info(`Login: User ${username} logged in successfully`);

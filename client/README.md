@@ -98,6 +98,9 @@ npm install dotenv
 ```bash
 # .env
 
+DEV=<false/true>
+# use for secure cookies and console outputs
+
 HOST=<internal-ip>
 # 127.0.0.1
 PORT=<internal-port>

@@ -14,11 +14,11 @@ export const actions: Actions = {
 
 		const username = formData.get("username") as string;
 		const password = await digestMessage(formData.get("password") as string);
-		const confirmPassword = await digestMessage(formData.get("confirmPassword") as string);
+		const confirmPassword = await digestMessage(formData.get("confirm password") as string);
 
 		if (password != confirmPassword) {
 			Logger.info(`Register: Passwords don't match`);
-			return fail(400, { message: "The passwords don't match. Please enter the same password in both fields." });
+			return fail(400, { message: "The passwords don't match. Please enter the same password in both fields.", field: "cofirm password" });
 		}
 
 		let connection: undefined | Database;
@@ -27,11 +27,11 @@ export const actions: Actions = {
 
 			if (await UserService.getByUsername(username)) {
 				Logger.info(`Register: User with ${username} already exists`);
-				return fail(400, { message: `User with ${username} already exists` });
+				return fail(400, { message: `The username you entered is already taken. Please choose a different username.`, field: "username" });
 			}
-			if (!(await UserService.insert(username, password))) return fail(500, { message: "Internal server error" });
+			if (!(await UserService.insert(username, password))) return fail(500, { message: "Internal server error", field: "" });
 			let session = TokenService.generateSessionToken();
-			if (!(await TokenService.insert(session, username))) return fail(500, { message: "Internal server error" });
+			if (!(await TokenService.insert(session, username))) return fail(500, { message: "Internal server error", field: "" });
 
 			cookies.set("session", session, {
 				httpOnly: true,

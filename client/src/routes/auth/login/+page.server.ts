@@ -22,16 +22,16 @@ export const actions: Actions = {
 			let user = await UserService.getByUsername(username);
 			if (!user) {
 				Logger.info(`Login: No User found with ${username}`);
-				return fail(400, { message: `No User found with ${username}` });
+				return fail(400, { message: `Incorrect username or password.`, field: "any" });
 			}
 			if (password !== user.password) {
 				Logger.info(`Login: Incorrect Password`);
-				return fail(400, { message: "Incorrect Password" });
+				return fail(400, { message: "Incorrect username or password.", field: "any" });
 			}
 			let token = await TokenService.getByUser(username);
 			if (token) await TokenService.delete(token);
 			let session = TokenService.generateSessionToken();
-			if (!(await TokenService.insert(session, username))) return fail(500, { message: "Internal server error" });
+			if (!(await TokenService.insert(session, username))) return fail(500, { message: "Internal server error", field: "" });
 
 			cookies.set("session", session, {
 				httpOnly: false,

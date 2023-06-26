@@ -27,7 +27,7 @@
 <div class="flex items-center justify-center w-full h-screen">
 	<div class="flex justify-center w-full rounded-md md:w-1/2 bg-secondary md:block">
 		<div class="w-full p-8">
-			<h1 class="mb-4 text-2xl font-bold text-center">Welcome Back</h1>
+			<h1 class="mb-4 text-2xl font-bold text-center">Welcome back</h1>
 			<form bind:this={formElement} method="post" use:enhance class="flex flex-col items-center justify-center w-full mb-4 space-y-4">
 				<div class="w-full space-y-1">
 					<label for="username" class="text-sm font-bold">USERNAME</label>

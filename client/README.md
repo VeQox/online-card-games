@@ -53,12 +53,14 @@ sudo apt install nginx
 sudo nginx -v
 ```
 
+<details>
+<summary>Deploy with http</summary>
+
 ```nginx
 # /etc/nginx/conf.d/reverse-proxy.conf
 
 server {
     # HTTP Port: 80
-    # HTTPS Port: 443
     listen 80;
     # External IP Adress
     server_name xxx.xxx.xxx.xxx;
@@ -77,6 +79,56 @@ server {
     }
 }
 ```
+</details>
+
+<details>
+<summary>Deploy with self signed ssl-certificate</summary>
+
+
+### [create a self signed ssl-certificate](https://www.digitalocean.com/community/tutorials/how-to-create-a-self-signed-ssl-certificate-for-nginx-in-ubuntu-20-04-1)
+
+For this to work you need to open port 443 with [firewalld](#deployment)
+
+```nginx
+# /etc/nginx/conf.d/reverse-proxy.conf
+
+server {
+    listen 80;
+
+    # External IP Adress
+    server_name xxx.xxx.xxx.xxx;
+
+    # Redirect to https
+    return 302 https://$server_name$request_uri;
+}
+
+server {
+    # HTTPS Port: 443
+    listen 443 ssl;
+
+    # include conf files
+    include snippets/self-signed.conf;
+    include snippets/ssl-params.conf;
+
+    # External IP Adress
+    server_name xxx.xxx.xxx.xxx;
+
+    location / {
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        proxy_connect_timeout 300;
+        proxy_set_header Connection "";
+
+        # http://127.0.0.1:8080
+        proxy_pass <internal-node-server-ip>;
+    }
+}
+```
+
+</details>
 
 ```bash
 # test configuration

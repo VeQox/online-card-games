@@ -1,16 +1,16 @@
-import { Server, createServer } from "http";
-import { Room } from "./room";
+import { createServer, Server } from "http";
+import express, { Express } from "express";
+import { roomRouter } from "./router/room-router";
+import { RoomRepository } from "./repository/room-repository";
+import cors from "cors";
 
-const server: Server = createServer();
+const app: Express = express();
+const server: Server = createServer(app);
 
-server.listen(3000, "0.0.0.0", 511, () => {
-    console.log("Server is running on port 3000");
-});
+app.use(express.json());
+app.use(cors());
+app.use("/rooms", roomRouter);
 
-
-server.on("upgrade", (request, socket, head) => {
-    let room = new Room();
-    room.handleUpgrade(request, socket, head, () => {
-        room.emit("connection", socket, request);
-    });
+server.listen(3000, () => {
+    console.log("Server listening on port 3000");
 });

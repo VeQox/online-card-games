@@ -1,8 +1,25 @@
 import { writable } from "svelte/store";
+import { browser } from "$app/environment";
+import { User } from "$lib/types/user";
+import { v4 } from "uuid";
 
-interface User {
-    name: string;
-    id?: string;
+export const user = writable<User>(new User("Guest", v4()));
+
+const setUser = () => {
+    let storedUser = User.fromJSON(localStorage.getItem("user") as string);
+    if(storedUser) {
+        if(!storedUser.id) storedUser.id = v4();
+        user.set(storedUser);
+        localStorage.setItem("user", storedUser.toJSON());
+        return;
+    }
 }
 
-export const user = writable<User>({ name: "Guest" });
+// load user from localStorage
+if(browser) {
+    setUser();
+    user.subscribe(val => {
+        if(!val) return;
+        localStorage.setItem("user", val.toJSON());
+    });
+}
